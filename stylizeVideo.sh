@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -e
 # Get a carriage return into `cr`
 cr=`echo $'\n.'`
@@ -81,7 +82,7 @@ echo "Computing optical flow. This may take a while..."
 bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 
 # Perform style transfer
-th artistic_video.lua \
+~/torch/install/bin/th artistic_video.lua \
 -content_pattern ${filename}/frame_%04d.ppm \
 -flow_pattern ${filename}/flow_${resolution}/backward_[%d]_{%d}.flo \
 -flowWeight_pattern ${filename}/flow_${resolution}/reliable_[%d]_{%d}.pgm \
