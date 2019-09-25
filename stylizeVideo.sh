@@ -83,18 +83,18 @@ bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 #bash make_opencv_flow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 
 # Perform style transfer
-#~/torch/install/bin/th artistic_video.lua \
-#-content_pattern ${filename}/frame_%04d.ppm \
-#-flow_pattern ${filename}/flow_${resolution}/backward_[%d]_{%d}.flo \
-#-flowWeight_pattern ${filename}/flow_${resolution}/reliable_[%d]_{%d}.pgm \
-#-style_weight $style_weight \
-#-temporal_weight $temporal_weight \
-#-output_folder ${filename}/ \
-#-style_image $style_image \
-#-backend $backend \
-#-gpu $gpu \
-#-cudnn_autotune \
-#-number_format %04d
-#
+~/torch/install/bin/th artistic_video.lua \
+-content_pattern ${filename}/frame_%04d.ppm \
+-flow_pattern ${filename}/flow_${resolution}/backward_[%d]_{%d}.flo \
+-flowWeight_pattern ${filename}/flow_${resolution}/reliable_[%d]_{%d}.pgm \
+-style_weight $style_weight \
+-temporal_weight $temporal_weight \
+-output_folder ${filename}/ \
+-style_image $style_image \
+-backend $backend \
+-gpu $gpu \
+-cudnn_autotune \
+-number_format %04d
+
 ## Create video from output images.
 #$FFMPEG -i ${filename}/out-%04d.png ${filename}-stylized.$extension
