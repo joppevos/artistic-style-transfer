@@ -4,8 +4,7 @@ out*.png
 *.jpg
 *.prototxt*
 *.caffemodel
-models/
-!models/download_models.sh
+
 deepflow2-static
 deepmatching-static
 consistencyChecker/consistencyChecker
