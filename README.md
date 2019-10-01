@@ -7,5 +7,5 @@ Will contain a docker image for easy deployment
 
 
 #### sources
-opencv flow repository : https://github.com/lulu1315/FlowCode
-artistic-video's : https://github.com/manuelruder/artistic-videos
+- opencv flow repository : https://github.com/lulu1315/FlowCode
+- artistic-video's : https://github.com/manuelruder/artistic-videos
