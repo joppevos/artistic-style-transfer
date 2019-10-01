@@ -8,3 +8,4 @@ out*.png
 deepflow2-static
 deepmatching-static
 consistencyChecker/consistencyChecker
+Flowcode/build/
