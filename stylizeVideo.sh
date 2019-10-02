@@ -25,10 +25,9 @@ extension="${filename##*.}"
 filename="${filename%.*}"
 filename=${filename//[%]/x}
 style_image=$2
-
+filepath=$(basename "$1")
 # Create output folder
 mkdir -p $filename
-
 
 echo ""
 read -p "Which backend do you want to use? \
@@ -77,10 +76,27 @@ read -p "Enter the zero-indexed ID of the GPU to use, or -1 for CPU mode (very s
  [0] $cr > " gpu
 gpu=${gpu:-0}
 
-#echo ""
-#echo "Computing optical flow. This may take a while..."
+# ask to continue at last found frame
+filepath=surf_input/
+image=out-0001.png
+
+if [[ -e "$filepath"$image ]];then
+  for file in "$filepath"*.png; do
+  lastfile=$file
+  done
+  lastfile=$(echo $lastfile | grep -o '[0-9]*' | tail -1 | sed 's/^0*//')
+  echo "Found that previous calculations stopped at frame $lastfile" \
+  "Do you want to continue from last found state? 1 - yes, 0 - no"
+  read;
+  if [[ ${REPLY} == 1 ]]; then
+    lastframeindex=$lastfile
+  fi
+fi
+lastframeindex=${lastframeindex:-1}
+echo "Starting from frame $lastframeindex"
+
+echo "Computing optical flow. This may take a while..."
 bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
-#bash make_opencv_flow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 
 # Perform style transfer
 ~/torch/install/bin/th artistic_video.lua \
@@ -93,6 +109,7 @@ bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 -style_image $style_image \
 -backend $backend \
 -gpu $gpu \
+-continue_with $lastframeindex \
 -cudnn_autotune \
 -number_format %04d
 
