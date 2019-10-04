@@ -19,4 +19,13 @@ docker run --gpus=all -v`pwd`:/data --rm -it vosser/artistic-video:latest
 ./stylizeVideo.sh /data/<name_of_video> /data/<name_of_style_image> 
 ```
 The images can be found inside the folder named <name_of_video>
+##### recommended
+Optional is giving the third argument to export it directly to the mount of the container to be able to see the output. 
+```
+./stylizeVideo.sh /data/<name_of_video> /data/<name_of_style_image> /data/<output_folder_name>
+```
+To display the \*.png files run ```xdg-open out-0001.png```
 
+
+#### More info
+the official repo from artistic-video: https://github.com/manuelruder/artistic-videos
