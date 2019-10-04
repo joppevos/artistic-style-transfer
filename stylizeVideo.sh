@@ -36,7 +36,6 @@ else
   output_location="${filename}/"
 fi
 echo "$output_location"
-exit 1
 echo ""
 read -p "Which backend do you want to use? \
 For Nvidia GPU, use cudnn if available, otherwise nn. \
