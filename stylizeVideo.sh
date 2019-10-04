@@ -26,9 +26,17 @@ filename="${filename%.*}"
 filename=${filename//[%]/x}
 style_image=$2
 filepath=$(basename "$1")
-# Create output folder
-mkdir -p $filename
+output_location=$3
 
+# Create output folder
+if [[ "$output_location" ]]; then
+  mkdir -p "$output_location"
+else
+  mkdir -p "$filename"
+  output_location="${filename}/"
+fi
+echo "$output_location"
+exit 1
 echo ""
 read -p "Which backend do you want to use? \
 For Nvidia GPU, use cudnn if available, otherwise nn. \
@@ -105,7 +113,7 @@ bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 -flowWeight_pattern ${filename}/flow_${resolution}/reliable_[%d]_{%d}.pgm \
 -style_weight $style_weight \
 -temporal_weight $temporal_weight \
--output_folder ${filename}/ \
+-output_folder "$output_location" \
 -style_image $style_image \
 -backend $backend \
 -gpu $gpu \
