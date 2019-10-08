@@ -17,16 +17,9 @@ RUN apt-get install -y \
     libreadline-dev \
     libwebkitgtk-3.0-0
 
-# adjusted repo
-RUN mkdir /artistic-transfer && \
-    git clone https://github.com/joppevos/artistic-style-transfer --recursive /artistic-transfer
-
 ## Install loadcaffe network for Torch
 RUN sudo apt-get install -y libprotobuf-dev protobuf-compiler; \
     cd /root/torch && install/bin/luarocks install loadcaffe
-
-# download VGG-19 models
-RUN cd /artistic-transfer/models/ && bash download_models.sh
 
 # install ffmpeg (required by FAV)
 RUN sudo add-apt-repository ppa:jonathonf/ffmpeg-4 && \
@@ -56,10 +49,17 @@ RUN cd ~/opencv_build/opencv && mkdir build && cd build; \
     make -j8 ; \
     sudo make install
 
+# adjusted repo
+RUN mkdir /artistic-transfer && \
+    git clone https://github.com/joppevos/artistic-style-transfer --recursive /artistic-transfer
+
+# download VGG-19 models
+RUN cd /artistic-transfer/models/ && bash download_models.sh
+
 # install flowcode build
 RUN cd /artistic-transfer/FlowCode/ && rm -rf build/ ; \
     mkdir build && cd build ; \
     cmake .. ; \
     make
 
-ENTRYPOINT ["/artistic-transfer"]
+WORKDIR "artistic-transfer/"

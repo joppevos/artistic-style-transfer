@@ -83,6 +83,16 @@ read -p "Enter the zero-indexed ID of the GPU to use, or -1 for CPU mode (very s
  [0] $cr > " gpu
 gpu=${gpu:-0}
 
+# keep original video colors
+echo "Would you like to keep the original colors from the input video? 1 - yes, 0 - no"
+read;
+if [[ ${REPLY} == 1 ]]; then
+  original_colors=1
+else
+  original_colors=0
+fi
+
+
 # ask to continue at last found frame
 filepath=surf_input/
 image=out-0001.png
@@ -115,6 +125,7 @@ bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 -output_folder "$output_location" \
 -style_image $style_image \
 -backend $backend \
+-original_colors $original_colors \
 -gpu $gpu \
 -continue_with $lastframeindex \
 -cudnn_autotune \

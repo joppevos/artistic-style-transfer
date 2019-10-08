@@ -55,6 +55,7 @@ cmd:option('-save_init', false, 'Whether the initialization image should be save
 
 -- Other options
 cmd:option('-style_scale', 1.0)
+cmd:option('-original_colors', 0)
 cmd:option('-pooling', 'max', 'max|avg')
 cmd:option('-proto_file', 'models/VGG_ILSVRC_19_layers_deploy.prototxt')
 cmd:option('-model_file', 'models/VGG_ILSVRC_19_layers.caffemodel')
@@ -146,6 +147,7 @@ local function main(params)
       print("No more frames.")
       do return end
     end
+    local content_image_source = image.load(string.format(params.content_pattern, frameIdx), 3)
     local content_losses, temporal_losses = {}, {}
     local additional_layers = 0
     local num_iterations = frameIdx == params.start_number and tonumber(numIters_first) or tonumber(numIters_subseq)
@@ -255,11 +257,11 @@ local function main(params)
     if params.save_init then
       save_image(img,
         string.format('%sinit-' .. params.number_format .. '.png',
-          params.output_folder, math.abs(frameIdx - params.start_number + 1)))
+          params.output_folder, math.abs(frameIdx - params.start_number + 1)), content_image, params)
     end
 
     -- Run the optimization to stylize the image, save the result to disk
-    runOptimization(params, net, content_losses, style_losses, temporal_losses, img, frameIdx, -1, num_iterations)
+    runOptimization(params, net, content_losses, style_losses, temporal_losses, img, frameIdx, -1, num_iterations, content_image_source)
 
     if frameIdx == params.start_number then
       firstImg = img:clone():float()

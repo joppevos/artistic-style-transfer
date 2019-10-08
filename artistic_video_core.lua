@@ -8,7 +8,7 @@ local lbfgs_mod = require 'lbfgs'
 ---
 
 function runOptimization(params, net, content_losses, style_losses, temporal_losses,
-    img, frameIdx, runIdx, max_iter)
+    img, frameIdx, runIdx, max_iter, content_image)
   local isMultiPass = (runIdx ~= -1)
 
   -- Run it through the network once to get the proper size for the gradient
@@ -77,7 +77,7 @@ function runOptimization(params, net, content_losses, style_losses, temporal_los
       else
         filename = build_OutFilename(params, math.abs(frameIdx - params.start_number + 1), should_save_end and -1 or t)
       end
-      save_image(img, filename)
+      save_image(img, filename, content_image, params)
     end
   end
 
@@ -103,7 +103,7 @@ function runOptimization(params, net, content_losses, style_losses, temporal_los
     end
     maybe_print(num_calls, loss, false)
     -- Only need to print if single-pass algorithm is used.
-    if not isMultiPass then 
+    if not isMultiPass then
       maybe_save(num_calls, false)
     end
 
@@ -113,7 +113,7 @@ function runOptimization(params, net, content_losses, style_losses, temporal_los
   end
 
   start_time = os.time()
-  
+
   -- Run optimization.
   if params.optimizer == 'lbfgs' then
     print('Running optimization with L-BFGS')
@@ -124,11 +124,11 @@ function runOptimization(params, net, content_losses, style_losses, temporal_los
       local x, losses = optim.adam(feval, img, optim_state)
     end
   end
-  
+
   end_time = os.time()
   elapsed_time = os.difftime(end_time-start_time)
   print("Running time: " .. elapsed_time .. "s")
-  
+
   print_end(num_calls)
   maybe_save(num_calls, true)
 end
@@ -157,21 +157,21 @@ function buildNet(cnn, params, style_images_caffe)
   for i = 1, #style_blend_weights do
     style_blend_weights[i] = style_blend_weights[i] / style_blend_sum
   end
-  
+
   local content_layers = params.content_layers:split(",")
   local style_layers = params.style_layers:split(",")
   -- Which layer to use for the temporal loss. By default, it uses a pixel based loss, masked by the certainty
   --(indicated by initWeighted).
   local temporal_layers = params.temporal_weight > 0 and {'initWeighted'} or {}
-  
+
   local style_losses = {}
   local contentLike_layers_indices = {}
   local contentLike_layers_type = {}
-  
+
   local next_content_i, next_style_i, next_temporal_i = 1, 1, 1
   local current_layer_index = 1
   local net = nn.Sequential()
-  
+
   -- Set up pixel based loss.
   if temporal_layers[next_temporal_i] == 'init' or temporal_layers[next_temporal_i] == 'initWeighted'  then
     print("Setting up temporal consistency.")
@@ -180,12 +180,12 @@ function buildNet(cnn, params, style_images_caffe)
       (temporal_layers[next_temporal_i] == 'initWeighted') and 'prevPlusFlowWeighted' or 'prevPlusFlow')
     next_temporal_i = next_temporal_i + 1
   end
-  
+
   -- Set up other loss modules.
   -- For content loss, only remember the indices at which they are inserted, because the content changes for each frame.
   if params.tv_weight > 0 then
     local tv_mod = nn.TVLoss(params.tv_weight):float()
-    tv_mod = MaybePutOnGPU(tv_mod, params) 
+    tv_mod = MaybePutOnGPU(tv_mod, params)
     net:add(tv_mod)
     current_layer_index = current_layer_index + 1
   end
@@ -369,7 +369,7 @@ function StyleLoss:__init(strength, target, normalize)
   self.strength = strength
   self.target = target
   self.loss = 0
-  
+
   self.gram = GramMatrix()
   self.G = nil
   self.crit = nn.MSECriterion()
@@ -491,16 +491,30 @@ function deprocess(img)
   return img
 end
 
-function save_image(img, fileName)
+-- Combine the Y channel of the generated image and the UV channels of the
+-- content image to perform color-independent style transfer.
+function original_colors(content, generated)
+  local generated_y = image.rgb2yuv(generated)[{{1, 1}}]
+  local content_uv = image.rgb2yuv(content)[{{2, 3}}]
+  return image.yuv2rgb(torch.cat(generated_y, content_uv, 1))
+end
+
+function save_image(img, fileName, content_image, params)
   local disp = deprocess(img:double())
   disp = image.minmax{tensor=disp, min=0, max=1}
+
+  -- Maybe perform postprocessing for color-independent style transfer
+  if params.original_colors == 1 then
+     disp = original_colors(content_image, disp)
+  end
+
   image.save(fileName, disp)
 end
 
 -- Checks whether a table contains a specific value
 function tabl_contains(tabl, val)
    for i=1,#tabl do
-      if tabl[i] == val then 
+      if tabl[i] == val then
          return true
       end
    end
@@ -605,6 +619,6 @@ function getStyleImages(params)
   for i = 1, #style_images_caffe do
      style_images_caffe[i] = MaybePutOnGPU(style_images_caffe[i], params)
   end
- 
+
   return style_images_caffe
 end
