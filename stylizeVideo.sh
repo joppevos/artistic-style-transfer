@@ -35,7 +35,7 @@ function defaultValues
 backend=cudnn
 gpu=0
 style_weight=3000
-resolution=1000:500
+resolution=200:200
 num_iterations=500,250
 temporal_weight=1e3
 original_colors=0
@@ -115,11 +115,14 @@ fi
 
 
 # Save frames of the video as individual image files
-
-if [ $resolution == "original" ]; then
-  $FFMPEG -i $1 ${filename}/frame_%04d.ppm
-else
-  $FFMPEG -i $1 -vf scale=$resolution ${filename}/frame_%04d.ppm
+if [[ -e $filename/frame_0001.ppm ]];then
+  echo 'images are found'
+  else
+    if [ $resolution == "original" ]; then
+    $FFMPEG -i $1 ${filename}/frame_%04d.ppm
+  else
+    $FFMPEG -i $1 -vf scale=$resolution ${filename}/frame_%04d.ppm
+    fi
 fi
 
 mkdir -p inProgress/${filename}/${filename}_[${num_iterations}]_$resolution

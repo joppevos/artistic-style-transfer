@@ -1,5 +1,7 @@
+#!/usr/bin/env bash
 # Specify the path to the optical flow utility here.
 # Also check line 44 and 47 whether the arguments are in the correct order.
+
 flowCommandLine="bash run-deepflow.sh"
 
 if [ -z "$flowCommandLine" ]; then
