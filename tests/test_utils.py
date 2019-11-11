@@ -16,4 +16,5 @@ def test_export_images():
     # remove folder afterwards
     shutil.rmtree('tests/test_video')
 
+def test_torch_install():
 

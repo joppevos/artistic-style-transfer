@@ -127,8 +127,10 @@ fi
 
 mkdir -p inProgress/${filename}/${filename}_[${num_iterations}]_$resolution
 echo "Computing optical flow. This may take a while..."
-bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
+#bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 
+echo ${filename}/flow_${resolution}/backward_[%d]_{%d}.flo
+exit
 # Perform style transfer
 ~/torch/install/bin/th artistic_video.lua \
 -content_pattern ${filename}/frame_%04d.ppm \
