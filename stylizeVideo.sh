@@ -34,11 +34,19 @@ function defaultValues
 {
 backend=cudnn
 gpu=0
+<<<<<<< HEAD
 style_weight=200
 resolution=original
 num_iterations=10,10
 temporal_weight=1e2
 original_colors=1
+=======
+style_weight=3000
+resolution=200:200
+num_iterations=500,250
+temporal_weight=1e3
+original_colors=0
+>>>>>>> fcbda9d025cfa410839d2efd5fea006fe3076bb2
 lastframeindex=1
 }
 
@@ -115,16 +123,19 @@ fi
 
 
 # Save frames of the video as individual image files
-
-if [ $resolution == "original" ]; then
-  $FFMPEG -i $1 ${filename}/frame_%04d.ppm
-else
-  $FFMPEG -i $1 -vf scale=$resolution ${filename}/frame_%04d.ppm
+if [[ -e $filename/frame_0001.ppm ]];then
+  echo 'images are found'
+  else
+    if [ $resolution == "original" ]; then
+    $FFMPEG -i $1 ${filename}/frame_%04d.ppm
+  else
+    $FFMPEG -i $1 -vf scale=$resolution ${filename}/frame_%04d.ppm
+    fi
 fi
 
 mkdir -p inProgress/${filename}/${filename}_[${num_iterations}]_$resolution
 echo "Computing optical flow. This may take a while..."
-bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
+#bash makeOptFlow.sh ./${filename}/frame_%04d.ppm ./${filename}/flow_$resolution
 
 # Perform style transfer
 ~/torch/install/bin/th artistic_video.lua \
