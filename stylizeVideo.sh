@@ -34,11 +34,11 @@ function defaultValues
 {
 backend=cudnn
 gpu=0
-style_weight=3000
-resolution=1000:500
-num_iterations=500,250
-temporal_weight=1e3
-original_colors=0
+style_weight=200
+resolution=original
+num_iterations=10,10
+temporal_weight=1e2
+original_colors=1
 lastframeindex=1
 }
 
